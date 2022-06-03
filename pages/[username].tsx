@@ -1,17 +1,14 @@
 import type { GetStaticPaths, GetStaticProps, NextPage } from "next";
+import { ParsedUrlQuery } from "querystring";
 import { Wrapper, Content, Profile, Links } from "../src/components/Containers";
 import UserLink from "../src/components/UserLink";
-import { firestore } from "../utils/admin";
+import { firestore } from "../src/utils/admin";
+import { UserData } from "../src/utils/interfaces";
 
 interface Link {
   id: string;
   title: string;
   url: string;
-}
-
-interface UserData {
-  username: string;
-  links: Link[];
 }
 
 const Home: NextPage<UserData> = ({ username, links }) => {
@@ -42,37 +39,40 @@ const Home: NextPage<UserData> = ({ username, links }) => {
 export default Home;
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  // ...
   return {
     paths: [],
     fallback: "blocking",
   };
 };
 
-export const getStaticProps: GetStaticProps = async (context) => {
+export const getStaticProps: GetStaticProps<UserData> = async (context) => {
   //
-  // @ts-ignore
-  const { username } = context.params;
+  const { username } = context.params as ParsedUrlQuery;
 
-  // const data = await (
-  //   await firestore().collection("app").doc("3nwF9p7X3H1syQCq7fDc").get()
-  // ).data();
-  const data = await (
+  const data = (
     await firestore().collection("app").where("username", "==", username).get()
   ).docs;
 
   if (data.length === 0)
     return {
-      notFound: true,
+      redirect: {
+        destination: `/create?username=${username}`,
+        permanent: false,
+      },
     };
 
-  // @ts-ignore
-  const { username, links } = data[0].data();
+  const { links } = data[0].data();
 
   return {
     props: {
-      username,
+      username: username as string,
       links,
+      customTheme: {
+        backgroundColor: "12",
+        fontFamily: "12",
+      },
+      theme: "custom",
+      uid: "asd",
     },
   };
 };

@@ -3,8 +3,8 @@ import styled from "styled-components";
 export const Wrapper = styled.div`
   display: flex;
   justify-content: center;
-  margin: 32px 16px;
-  min-width: 343px;
+  padding: 32px 16px;
+  min-width: 375px;
 `;
 
 export const Content = styled.div`
